@@ -5,6 +5,8 @@ import os
 import math
 from webcolors import CSS3_NAMES_TO_HEX, hex_to_rgb
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PyQt5 import QtGui
+
 
 
 class ColorPicker(QWidget):
@@ -13,12 +15,13 @@ class ColorPicker(QWidget):
 
         self.color1 = QColor(213, 211, 214)
         self.color2 = QColor(109, 125, 137)
-
         self.width = 150
         self.height = 800
         self.stroke_width = 2
         self.font_path = 'D:\字体\HarmonyOS_Sans\HarmonyOS_Sans_SC_Regular.ttf'
         self.font_size = 40
+        self.init_ui()
+
 
         self.init_ui()
 
@@ -54,7 +57,8 @@ class ColorPicker(QWidget):
         self.height_edit.setValidator(QIntValidator())
         self.height_edit.setText(str(self.height))
         self.height_edit.textChanged.connect(self.update_height)
-
+        self.stroke_width_edit.textChanged.connect(self.update_stroke_width)
+        self.font_path_edit.textChanged.connect(self.update_font_path)
         stroke_width_label = QLabel('描边宽度:')
         self.stroke_width_edit = QLineEdit()
         self.stroke_width_edit.setValidator(QIntValidator())
@@ -116,28 +120,39 @@ class ColorPicker(QWidget):
         vbox.addWidget(self.preview_label)
 
         self.setLayout(vbox)
+    
+    def update_stroke_width(self, text):
+        try:
+            self.stroke_width = int(text)
+        except ValueError:
+            pass
 
-    def choose_color1(self):
-        color = QColorDialog.getColor()
-        if color.isValid():
-            self.color1 = color
-            self.update_color1_button()
-            self.update_preview()
+    def update_font_path(self, text):
+        self.font_path = text
+    # def update_stroke_width(self, text):
+    #     try:
+    #         width = int(text)
+    #         if width > 0:
+    #             self.stroke_width = width
+    #         else:
+    #             # 如果输入的值为负数或零，将其设置为默认值1
+    #             self.stroke_width = 1
+    #             self.stroke_width_edit.setText(str(self.stroke_width))
+    #     except ValueError:
+    #         # 如果输入的不是有效整数，将其设置为默认值1
+    #         self.stroke_width = 1
+    #         self.stroke_width_edit.setText(str(self.stroke_width))
+    
+    # def update_font_path(self, path):
+    #     """Update font path and set the current font to the selected font"""
+    #     self.font_path = path
+    #     font_id = QtGui.QFontDatabase.addApplicationFont(path)
+    #     font_families = QtGui.QFontDatabase.applicationFontFamilies(font_id)
+    #     if font_families:
+    #         font_family = font_families[0]
+    #         font = QtGui.QFont(font_family, self.font_size_spin.value())
+    #         self.preview_label.setFont(font)
 
-    def update_color1_button(self):
-        color_name = get_color_name(self.color1.getRgb())
-        self.color1_button.setText('{} - {}'.format(color_name, self.color1.name()))
-
-    def choose_color2(self):
-        color = QColorDialog.getColor()
-        if color.isValid():
-            self.color2 = color
-            self.update_color2_button()
-            self.update_preview()
-
-    def update_color2_button(self):
-        color_name = get_color_name(self.color2.getRgb())
-        self.color2_button.setText('{} - {}'.format(color_name, self.color2.name()))
 
     def update_width(self, text):
         if text:
@@ -461,6 +476,8 @@ def draw_rectangles(width, height, color1, color2, stroke_width=4, font_path='ar
         image.show()
 
 
+
+
 def unified_draw_rectangles(width, height, rgb1, rgb2, stroke_width=4, font_path="arial.ttf", font_size=20, save_path=None):
     draw_rectangles(width, height, rgb1, rgb2, stroke_width, font_path, font_size, save_path)
 
@@ -473,7 +490,7 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-
+    
     color_picker = ColorPicker()
     color_picker.show()
 
